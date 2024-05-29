@@ -18,7 +18,7 @@ export default class Care extends BaseModel {
   declare startAt: Date
 
   @column()
-  declare endAt: Date
+  declare endAt: Date | null
 
   @column()
   declare veterinarian: string | null

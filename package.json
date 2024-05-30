@@ -70,6 +70,7 @@
     "@headlessui/react": "^2.0.4",
     "@inertiajs/react": "^1.1.0",
     "@vinejs/vine": "^2.0.0",
+    "axios": "^1.7.2",
     "edge.js": "^6.0.2",
     "luxon": "^3.4.4",
     "pg": "^8.11.5",

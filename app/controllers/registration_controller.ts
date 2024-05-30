@@ -10,6 +10,10 @@ import { registrationValidator } from '#validators/register'
 import Organization from '#models/organization'
 
 export default class RegistrationController {
+  registrationPage({ inertia }: HttpContext) {
+    return inertia.render('registration')
+  }
+
   async register({ request, response, auth }: HttpContext) {
     try {
       const payload = await request.validateUsing(registrationValidator)

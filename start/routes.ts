@@ -30,4 +30,7 @@ router
     router
       .get('/connexion', [AuthController, 'loginPage']).as('login')
       .use(middleware.guest())
+    router
+      .get('/inscription', [RegistrationController, 'registrationPage']).as('register')
+      .use(middleware.guest())
   })

@@ -28,7 +28,9 @@ export default function Login() {
     <>
       <Head title="Connexion" />
       <main className="h-screen lg:flex">
-        <span className="h-full w-full hidden lg:block bg-cover bg-center bg-[url('https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?q=80&w=3087&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')]"></span>
+        <span
+          className={`h-full w-full hidden lg:block bg-cover bg-center bg-[url(public/img/login_page_image.jpg)]`}
+        ></span>
         <div className="flex flex-col justify-center space-y-10 h-full w-full sm:p-16 md:p-24 lg:p-16">
           <h1 className="text-3xl text-center font-semibold text-primary">PAWWWS.</h1>
           <form onSubmit={handleSubmit(onSubmit)}>

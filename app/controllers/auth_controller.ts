@@ -18,9 +18,13 @@ export default class AuthController {
   async logoutUser({ auth, response }: HttpContext) {
     try {
       auth.use('web').logout()
-      return response.redirect().toPath('/connexion')
+      return response.redirect().toRoute('login')
     } catch (error) {
       return response.status(500).send(error.message)
     }
+  }
+
+  loginPage({ inertia }: HttpContext) {
+    return inertia.render('login')
   }
 }

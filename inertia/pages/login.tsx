@@ -1,5 +1,5 @@
 import { Field, Label, Input, Fieldset, Button } from '@headlessui/react'
-import { Head } from '@inertiajs/react'
+import { Head, router } from '@inertiajs/react'
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
 
@@ -18,6 +18,7 @@ export default function Login() {
   const onSubmit = async (data: FormData) => {
     try {
       const response = await axios.post('/api/auth/login', data)
+      router.visit('/')
       console.log(response)
     } catch (error) {
       console.log(error.message)
@@ -28,8 +29,10 @@ export default function Login() {
     <>
       <Head title="Connexion" />
       <main className="h-screen lg:flex">
-        <span className="h-full w-full hidden lg:block bg-cover bg-center bg-[url('https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?q=80&w=3087&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')]"></span>
-        <div className="flex flex-col justify-center space-y-10 h-full w-full sm:p-16 md:p-24 lg:p-16">
+        <span
+          className={`h-full w-full hidden lg:block bg-cover bg-center bg-[url(public/img/login_page_image.jpg)]`}
+        ></span>
+        <div className="flex flex-col space-y-10 h-full w-full sm:p-16 md:p-24 lg:p-16">
           <h1 className="text-3xl text-center font-semibold text-primary">PAWWWS.</h1>
           <form onSubmit={handleSubmit(onSubmit)}>
             <h2 className="text-2xl text-center font-medium">Connexion</h2>

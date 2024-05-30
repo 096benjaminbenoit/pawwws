@@ -42,7 +42,7 @@ export default function Registration() {
       <Head title="Inscription" />
       <main className="lg:h-screen lg:flex">
         <span
-          className={`h-full w-full hidden lg:block bg-cover bg-center bg-[url('https://images.unsplash.com/photo-1552053831-71594a27632d?q=80&w=3062&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')]`}
+          className={`h-full w-full hidden lg:block bg-cover bg-center bg-[url(public/img/registration_page_image.jpg)]`}
         ></span>
         <div className="flex flex-col my-10 lg:my-0 space-y-10 h-full w-full sm:p-16 md:p-24 lg:p-16">
           <h1 className="text-3xl text-center font-semibold text-primary">PAWWWS.</h1>

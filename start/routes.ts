@@ -29,3 +29,9 @@ router
       .use(middleware.auth())
   })
   .prefix('/api')
+
+  router.group(() => {
+    router
+      .get('/connexion', [AuthController, 'loginPage']).as('login')
+      .use(middleware.guest())
+  })

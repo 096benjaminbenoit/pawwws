@@ -1,7 +1,9 @@
 import vine from '@vinejs/vine'
 
-export const createOrganizationValidator = vine.compile(
+export const registrationValidator = vine.compile(
   vine.object({
+    email: vine.string().email().minLength(3).trim(),
+    password: vine.string().minLength(8).trim(),
     name: vine.string().minLength(3).maxLength(255).trim(),
     telephone: vine
       .string()

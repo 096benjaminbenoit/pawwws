@@ -1,5 +1,4 @@
 import User from '#models/user'
-import { createUserValidator } from '#validators/user'
 import type { HttpContext } from '@adonisjs/core/http'
 import { UserRole } from '../enums/user_roles.js'
 import { emailValidator } from '#validators/email'
@@ -7,25 +6,29 @@ import crypto from 'node:crypto'
 import mail from '@adonisjs/mail/services/main'
 import { env } from 'node:process'
 import { passwordValidator } from '#validators/password'
+import { registrationValidator } from '#validators/register'
+import Organization from '#models/organization'
 
 export default class RegistrationController {
-  async registerUser({ request, response, session, auth }: HttpContext) {
+  async register({ request, response, auth }: HttpContext) {
     try {
-      const payload = await request.validateUsing(createUserValidator)
+      const payload = await request.validateUsing(registrationValidator)
       if (!payload) return response.status(400).send({ message: 'Form is empty' })
 
+      const newOrganization = new Organization()
+      Object.assign(newOrganization, payload)
+      await newOrganization.save()
+
       const newUser = new User()
-      Object.assign(newUser, payload)
+      newUser.email = payload.email
+      newUser.password = payload.password
       newUser.role = UserRole.ADMIN
-      newUser.organizationId = session.get('organizationId')
+      newUser.organizationId = newOrganization.id
 
       await newUser.save()
 
-      session.forget('organizationId')
-
       const user = await User.verifyCredentials(payload.email, payload.password)
       await auth.use('web').login(user)
-
       return response
         .status(201)
         .send({ message: 'User created successfully, you now connected !' })

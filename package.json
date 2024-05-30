@@ -67,6 +67,7 @@
     "@adonisjs/shield": "^8.1.1",
     "@adonisjs/static": "^1.1.1",
     "@adonisjs/vite": "^3.0.0-11",
+    "@headlessui/react": "^2.0.4",
     "@inertiajs/react": "^1.1.0",
     "@vinejs/vine": "^2.0.0",
     "edge.js": "^6.0.2",

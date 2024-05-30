@@ -19,6 +19,12 @@ export default class RegistrationController {
       const payload = await request.validateUsing(registrationValidator)
       if (!payload) return response.status(400).send({ message: 'Form is empty' })
 
+      if (await User.findBy('email', payload.email))
+        return response.status(400).send({ message: 'User email already use' })
+
+      if (await Organization.findBy('name', payload.name))
+        return response.status(400).send({ message: 'Organization name already use' })
+
       const newOrganization = new Organization()
       Object.assign(newOrganization, payload)
       await newOrganization.save()

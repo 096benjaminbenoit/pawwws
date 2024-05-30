@@ -2,6 +2,7 @@ import { Field, Label, Input, Fieldset, Button } from '@headlessui/react'
 import { Head, router } from '@inertiajs/react'
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
+import toast from 'react-hot-toast'
 
 type FormData = {
   email: string
@@ -19,8 +20,11 @@ export default function Login() {
     try {
       const response = await axios.post('/api/auth/login', data)
       router.visit('/')
+      toast.success('Vous êtes connecté')
+
       console.log(response)
     } catch (error) {
+      toast.error('Email ou mot de passe incorrecte')
       console.log(error.message)
     }
   }
@@ -32,7 +36,7 @@ export default function Login() {
         <span
           className={`h-full w-full hidden lg:block bg-cover bg-center bg-[url(public/img/login_page_image.jpg)]`}
         ></span>
-        <div className="flex flex-col space-y-10 h-full w-full sm:p-16 md:p-24 lg:p-16">
+        <div className="flex flex-col space-y-10 my-10 lg:my-0 h-full w-full sm:p-16 md:p-24 lg:p-16">
           <h1 className="text-3xl text-center font-semibold text-primary">PAWWWS.</h1>
           <form onSubmit={handleSubmit(onSubmit)}>
             <h2 className="text-2xl text-center font-medium">Connexion</h2>
@@ -43,9 +47,15 @@ export default function Login() {
                 </Label>
                 <Input
                   className="border border-gray-300 rounded-lg p-3"
-                  {...register('email', { required: true })}
+                  type="email"
+                  {...register('email', {
+                    required: true,
+                    pattern: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                  })}
                 />
-                {errors.email && <span className="text-error">Ce champ est requis</span>}
+                {errors.email && (
+                  <span className="text-error">L'email est requis et doit être valide</span>
+                )}
               </Field>
               <Field className="flex flex-col mx-4 space-y-1">
                 <Label className="font-semibold text-lg" htmlFor="password">
@@ -56,7 +66,7 @@ export default function Login() {
                   className="border border-gray-300 rounded-lg p-3"
                   {...register('password', { required: true })}
                 />
-                {errors.email && <span className="text-error">Ce champ est requis</span>}
+                {errors.email && <span className="text-error">Le mot de passe est requis</span>}
 
                 <a className="self-end underline hover:font-medium" href="#">
                   Mot de passe oublié ?

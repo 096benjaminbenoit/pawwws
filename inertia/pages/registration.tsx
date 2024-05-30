@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { ArrowUturnLeftIcon } from '@heroicons/react/24/solid'
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
+import toast from 'react-hot-toast'
 
 type FormData = {
   email: string
@@ -31,8 +32,11 @@ export default function Registration() {
     try {
       const response = await axios.post('/api/register', data)
       router.visit('/')
+      toast.success('Votre compte a bien été créé !')
+
       console.log(response)
     } catch (error) {
+      toast.error("Votre compte n'a pas pu être créé")
       console.log(error.message)
     }
   }

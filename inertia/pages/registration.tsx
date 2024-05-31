@@ -31,7 +31,7 @@ export default function Registration() {
   const onSubmit = async (data: FormData) => {
     try {
       const response = await axios.post('/api/register', data)
-      router.visit('/')
+      router.visit('/tableau-de-bord')
       toast.success('Votre compte a bien été créé !')
 
       console.log(response)

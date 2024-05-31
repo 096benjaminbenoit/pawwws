@@ -19,7 +19,7 @@ export default function Login() {
   const onSubmit = async (data: FormData) => {
     try {
       const response = await axios.post('/api/auth/login', data)
-      router.visit('/')
+      router.visit('/tableau-de-bord')
       toast.success('Vous êtes connecté')
 
       console.log(response)

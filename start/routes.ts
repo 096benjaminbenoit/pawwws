@@ -1,11 +1,16 @@
 /* eslint-disable prettier/prettier */
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+const AnimalsController = () => import('#controllers/animals_controller')
+const FamiliesController = () => import('#controllers/families_controller')
+const UsersController = () => import('#controllers/users_controller')
 const DashboardController = () => import('#controllers/dashboard_controller')
 const AuthController = () => import('#controllers/auth_controller')
 const RegistrationController = () => import('#controllers/registration_controller')
 
 router.on('/').renderInertia('home', { version: 6 })
+
+  // ------------------- POST / UPDATE / DELETE METHODS ------------------- //
 
 router
   .group(() => {
@@ -31,6 +36,8 @@ router
   })
   .prefix('/api')
 
+  // ------------------- GET METHODS ------------------- //
+
 router.group(() => {
   router
     .get('/connexion', [AuthController, 'loginPage'])
@@ -48,15 +55,15 @@ router.group(() => {
       .as('dashboard')
 
       router
-      .get('/animaux', [DashboardController, 'animalsPage'])
+      .get('/animaux', [AnimalsController, 'index'])
       .as('dashboard.animals')
 
       router
-      .get('/familles', [DashboardController, 'familiesPage'])
+      .get('/familles', [FamiliesController, 'index'])
       .as('dashboard.families')
 
       router
-      .get('/utilisateurs', [DashboardController, 'usersPage'])
+      .get('/utilisateurs', [UsersController, 'index'])
       .as('dashboard.users')
   })
   .prefix('/tableau-de-bord')

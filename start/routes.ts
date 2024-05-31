@@ -26,13 +26,23 @@ router
       .post('/register/:token', [RegistrationController, 'registerUserByInvitation'])
       .use(middleware.guest())
 
-    router
-      .post('/auth/login', [AuthController, 'loginUser'])
+    router.group(() => {
+      router
+      .post('/login', [AuthController, 'loginUser'])
       .use(middleware.guest())
 
     router
-      .post('/auth/logout', [AuthController, 'logoutUser'])
+      .post('/logout', [AuthController, 'logoutUser'])
       .use(middleware.auth())
+    })
+    .prefix('/auth')
+
+    router.group(() => {
+      router
+        .post('/store', [AnimalsController, 'store'])
+    })
+    .prefix('/animals')
+    .use(middleware.auth())
   })
   .prefix('/api')
 

@@ -13,7 +13,7 @@ export default class AnimalsController {
     return inertia.render('animals/create')
   }
 
-  update({ inertia }: HttpContext) {
+  edit({ inertia }: HttpContext) {
     return inertia.render('animals/edit')
   }
 }

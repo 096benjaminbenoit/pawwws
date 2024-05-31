@@ -13,7 +13,7 @@ export default class FamiliesController {
     return inertia.render('families/create')
   }
 
-  update({ inertia }: HttpContext) {
+  edit({ inertia }: HttpContext) {
     return inertia.render('families/edit')
   }
 }

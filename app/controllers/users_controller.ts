@@ -13,7 +13,7 @@ export default class UsersController {
     return inertia.render('users/create')
   }
 
-  update({ inertia }: HttpContext) {
+  edit({ inertia }: HttpContext) {
     return inertia.render('users/edit')
   }
 }

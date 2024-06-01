@@ -1,8 +1,7 @@
-import { Button, Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
+import { Button } from '@headlessui/react'
 import {
   ArrowPathIcon,
   DocumentArrowDownIcon,
-  EllipsisVerticalIcon,
   MagnifyingGlassIcon,
   PlusCircleIcon,
 } from '@heroicons/react/24/outline'

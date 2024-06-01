@@ -78,7 +78,7 @@ export default function Header() {
             </PopoverButton>
             <PopoverPanel
               anchor="bottom end"
-              className="flex flex-col bg-white shadow-lg p-4 rounded-lg space-y-3"
+              className="flex flex-col bg-white shadow-lg p-4 rounded-lg space-y-3 z-[100] border border-gray-200"
             >
               <p className="font-light">{user.email}</p>
               <a href="/security" className="transition-all hover:font-medium">

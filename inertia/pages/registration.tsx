@@ -33,8 +33,6 @@ export default function Registration() {
       const response = await axios.post('/api/register', data)
       router.visit('/tableau-de-bord')
       toast.success('Votre compte a bien été créé !')
-
-      console.log(response)
     } catch (error) {
       toast.error("Votre compte n'a pas pu être créé")
       console.log(error.message)

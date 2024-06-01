@@ -2,7 +2,7 @@ import { Button, Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
 import {
   ArrowPathIcon,
   DocumentArrowDownIcon,
-  FunnelIcon,
+  EllipsisVerticalIcon,
   MagnifyingGlassIcon,
   PlusCircleIcon,
 } from '@heroicons/react/24/outline'
@@ -14,6 +14,8 @@ import DashboardLayout from '~/layouts/dashboard_layout'
 import { Animal } from '~/types/animal'
 import { saveAs } from 'file-saver'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import AnimalCardItem from '~/components/dashboard/animals/animal_card_item'
+import AnimalTableItem from '~/components/dashboard/animals/animal_table_item'
 
 export default function Animals() {
   const [animals, setAnimals] = useState([])
@@ -38,27 +40,27 @@ export default function Animals() {
     }
   }
 
+  async function fetchAnimals() {
+    try {
+      const res = await axios.get(`/api/animals/?page=1`)
+      setTotal(res.data.meta.total)
+      setAnimals(res.data.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async function search() {
+    try {
+      setPage(1)
+      const res = await axios.get(`/api/animals/search?query=${query}`)
+      setAnimals(res.data.results)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   useEffect(() => {
-    async function fetchAnimals() {
-      try {
-        const res = await axios.get(`/api/animals/?page=1`)
-        setTotal(res.data.meta.total)
-        setAnimals(res.data.data)
-      } catch (error) {
-        console.log(error)
-      }
-    }
-
-    async function search() {
-      try {
-        setPage(1)
-        const res = await axios.get(`/api/animals/search?query=${query}`)
-        setAnimals(res.data.results)
-      } catch (error) {
-        console.log(error)
-      }
-    }
-
     if (query.length >= 3) {
       search()
     } else {
@@ -82,10 +84,9 @@ export default function Animals() {
     <>
       <Head title="Animaux" />
       <DashboardLayout>
-        <div className="flex flex-col items-center w-full h-full">
+        <div className="flex flex-col items-center w-full h-full md:bg-lightbase">
+          <h1 className="text-center pt-4 font-medium text-2xl">Tous vos animaux 🐈‍⬛</h1>
           <section className="relative flex w-full h-full flex-col bg-clip-border text-gray-700 shadow-md md:hidden">
-            <h1 className="text-center pt-2 font-medium text-2xl">Tous vos animaux 🐈‍⬛</h1>
-
             <div className="flex items-center justify-between gap-3 w-full mt-4 px-4">
               <Button
                 onClick={() => exportCsv()}
@@ -129,37 +130,92 @@ export default function Animals() {
                   }
                 >
                   {animals.map((animal: Animal) => (
-                    <a
-                      key={animal.id}
-                      href={`/tableau-de-bord/animaux/detail/${animal.id}`}
-                      className="mx-4 flex items-center justify-between pb-3 pt-3 cursor-pointer hover:shadow-md hover:rounded-lg px-4 transition-all hover:scale-[1.02]"
-                    >
-                      <div className="flex items-center gap-x-3">
-                        <div>
-                          <h6 className="block font-sans text-base font-semibold leading-relaxed tracking-normal text-blue-gray-900 antialiased">
-                            {animal.name[0].toUpperCase() + animal.name.slice(1)}
-                          </h6>
-                          <p className="block font-sans text-sm font-light leading-normal text-gray-700 antialiased">
-                            {animal.identificationNumber}
-                          </p>
-                        </div>
-                      </div>
-                      <h6 className="block font-sans text-base font-semibold leading-relaxed tracking-normal text-blue-gray-900 antialiased">
-                        {animal.species[0].toUpperCase() + animal.species.slice(1)}
-                      </h6>
-                    </a>
+                    <AnimalCardItem animal={animal} />
                   ))}
                 </InfiniteScroll>
               )}
-
-              {/* {animals.length < total && animals.length >= 3 && (
-                <Button
-                  onClick={fetchMore}
-                  className="bg-primary py-2 px-3 text-white font-medium hover:opacity-80 transition-all cursor-pointer rounded-lg w-full mt-4 mb-6"
-                >
-                  Afficher plus
-                </Button>
-              )} */}
+            </div>
+          </section>
+          <section className="h-full w-full container py-6 pb-10 hidden md:block">
+            <div className="flex flex-col">
+              <div className="-m-1.5 overflow-x-auto">
+                <div className="p-1.5 min-w-full inline-block align-middle">
+                  <div className="border rounded-lg divide-y divide-gray-200 shadow-md bg-white">
+                    <div className="py-3 px-4 flex justify-between items-center">
+                      <div className="relative w-1/3">
+                        <label className="sr-only">Search</label>
+                        <input
+                          value={query}
+                          onChange={(e) => setQuery(e.target.value)}
+                          type="text"
+                          name="query"
+                          className="py-2 px-3 ps-9 block w-full border-gray-200 border shadow-sm rounded-lg text-sm"
+                          placeholder="Rechercher un animal ..."
+                        />
+                        <div className="absolute inset-y-0 start-0 flex items-center pointer-events-none ps-3">
+                          <MagnifyingGlassIcon className="w-4 text-gray-500" />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <Button
+                          onClick={() => exportCsv()}
+                          className="bg-primary py-2 px-4 text-white font-medium hover:opacity-80 transition-all cursor-pointer rounded-lg w-full flex items-center justify-center gap-2"
+                        >
+                          <DocumentArrowDownIcon className="w-6" />
+                          Export
+                        </Button>
+                        <Button className="bg-primary py-2 px-4 text-white font-medium hover:opacity-80 transition-all cursor-pointer rounded-lg w-full flex items-center justify-center gap-2">
+                          <PlusCircleIcon className="w-6" />
+                          Nouveau
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="overflow-hidden">
+                      <table className="min-w-full divide-y divide-gray-200 ">
+                        <thead className="bg-gray-50 ">
+                          <tr>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase "
+                            >
+                              N°identification
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase "
+                            >
+                              Nom
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase "
+                            >
+                              Espèce
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase "
+                            >
+                              Couleur
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase "
+                            >
+                              Action
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {animals.map((animal: Animal) => (
+                            <AnimalTableItem animal={animal} />
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
         </div>

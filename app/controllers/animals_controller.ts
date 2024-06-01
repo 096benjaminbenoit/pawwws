@@ -2,6 +2,7 @@ import Animal from '#models/animal'
 import { createAnimal } from '#validators/animal'
 import type { HttpContext } from '@adonisjs/core/http'
 import { UserRole } from '../enums/user_roles.js'
+import CsvService from '#services/csv_service'
 
 export default class AnimalsController {
   index({ inertia, auth, response }: HttpContext) {
@@ -42,6 +43,22 @@ export default class AnimalsController {
     } catch (error) {
       return response.status(500).send(error.message)
     }
+  }
+
+  async downloadAnimalsCsv({ response, auth }: HttpContext) {
+    if (!auth.user) return response.status(401).send({ message: 'You must be loggedin' })
+
+    const animals = await Animal.query()
+      .where('organization_id', auth.user.organizationId)
+      .preload('organization')
+      .preload('adoptiveFamily')
+
+    const csvService = new CsvService()
+    const result = await csvService.convert(animals)
+
+    response.header('Content-Type', 'text/csv')
+    response.header('Content-Disposition', 'attachment; filename="animals.csv"')
+    return response.send(result)
   }
 
   show({ inertia }: HttpContext) {

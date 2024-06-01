@@ -20,7 +20,7 @@ export default function Header() {
 
   return (
     <>
-      <nav className="flex justify-between items-center py-4 px-4 md:px-9 bg-white shadow-lg">
+      <nav className="flex justify-between items-center py-4 px-4 md:px-9 bg-white border-b sticky top-0 z-40">
         <button onClick={() => setIsOpen(!isOpen)} className="md:hidden">
           {isOpen ? (
             <XMarkIcon className="w-8 text-dark" />
@@ -78,7 +78,7 @@ export default function Header() {
             </PopoverButton>
             <PopoverPanel
               anchor="bottom end"
-              className="flex flex-col bg-white shadow-lg p-4 rounded-lg space-y-3"
+              className="flex flex-col bg-white shadow-lg p-4 rounded-lg space-y-3 z-[100] border border-gray-200"
             >
               <p className="font-light">{user.email}</p>
               <a href="/security" className="transition-all hover:font-medium">

@@ -21,8 +21,6 @@ export default function Login() {
       const response = await axios.post('/api/auth/login', data)
       router.visit('/tableau-de-bord')
       toast.success('Vous êtes connecté')
-
-      console.log(response)
     } catch (error) {
       toast.error('Email ou mot de passe incorrecte')
       console.log(error.message)

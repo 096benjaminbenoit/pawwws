@@ -49,7 +49,9 @@ export default class Animal extends BaseModel {
   @column()
   declare adoptiveFamilyId: number | null
 
-  @belongsTo(() => Family)
+  @belongsTo(() => Family, {
+    foreignKey: 'adoptiveFamilyId',
+  })
   declare adoptiveFamily: BelongsTo<typeof Family>
 
   @column()
@@ -61,7 +63,9 @@ export default class Animal extends BaseModel {
   @column()
   declare hostingFamilyId: number | null
 
-  @belongsTo(() => Family)
+  @belongsTo(() => Family, {
+    foreignKey: 'hostingFamilyId',
+  })
   declare hostingFamily: BelongsTo<typeof Family>
 
   @column()

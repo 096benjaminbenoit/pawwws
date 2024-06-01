@@ -1,7 +1,7 @@
 export enum AnimalSpecies {
-  CAT = 'cat',
-  DOG = 'dog',
-  HORSE = 'horse',
+  CAT = 'chat',
+  DOG = 'chien',
+  HORSE = 'cheval',
   REPTILE = 'reptile',
-  GOAT = 'goat',
+  GOAT = 'caprin',
 }

@@ -14,6 +14,9 @@ export default function Sidebar({ user, currentPath }: { user: User; currentPath
   return (
     <div className="fixed left-0 z-40 flex h-[calc(100vh-64px)] w-full max-w-[20rem] flex-col bg-white bg-clip-border border-r p-4 text-dark shadow-lg">
       <nav className="flex min-w-[240px] flex-col gap-1 p-2 font-sans text-base font-normal">
+        <h1 className="font-semibold text-primary text-xl text-center pb-4">
+          <a href="/tableau-de-bord">PAWWWS.</a>
+        </h1>
         <a
           href="/tableau-de-bord"
           className={`${currentPath === '/tableau-de-bord' ? 'bg-primary text-white' : ''} flex items-center w-full p-3 leading-tight transition-all rounded-lg outline-none text-start hover:font-medium hover:bg-primary hover:text-white`}

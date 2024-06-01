@@ -20,7 +20,7 @@ export default function Header() {
 
   return (
     <>
-      <nav className="flex justify-between items-center py-4 px-4 md:px-9 bg-white shadow-lg">
+      <nav className="flex justify-between items-center py-4 px-4 md:px-9 bg-white border-b sticky top-0 z-40">
         <button onClick={() => setIsOpen(!isOpen)} className="md:hidden">
           {isOpen ? (
             <XMarkIcon className="w-8 text-dark" />

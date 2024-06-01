@@ -7,7 +7,8 @@ const AnimalsController = () => import('#controllers/animals_controller')
 router.group(() => {
     router.get('', [AnimalsController, 'getAnimals'])
     router.post('/store', [AnimalsController, 'store'])
-    router.get('/search?:query', [AnimalsController, 'search'])
+    router.get('/search', [AnimalsController, 'search'])
+
 })
 .use(middleware.auth())
 .prefix('/api/animals')

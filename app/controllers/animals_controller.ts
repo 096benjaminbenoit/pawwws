@@ -14,7 +14,7 @@ export default class AnimalsController {
     if (!auth.user) return response.status(401).send({ message: 'You must be loggedin' })
 
     const page = request.input('page', 1)
-    const limit = 6
+    const limit = 10
 
     try {
       const animals = await Animal.query()

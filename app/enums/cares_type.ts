@@ -1,5 +1,5 @@
 export enum CaresType {
-  TREATMENT = 'treatment',
+  TREATMENT = 'traitement',
   VACCINATION = 'vaccination',
-  SURGERY = 'surgery',
+  SURGERY = 'chirurgie',
 }

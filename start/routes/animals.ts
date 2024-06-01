@@ -8,6 +8,7 @@ router.group(() => {
     router.get('', [AnimalsController, 'getAnimals'])
     router.post('/store', [AnimalsController, 'store'])
     router.get('/search', [AnimalsController, 'search'])
+    router.get('/export-csv', [AnimalsController, 'downloadAnimalsCsv'])
 
 })
 .use(middleware.auth())

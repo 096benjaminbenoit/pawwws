@@ -1,10 +1,9 @@
-import { Field, Label, Input, Fieldset, Button } from '@headlessui/react'
-import { Head, router } from '@inertiajs/react'
-import { useState } from 'react'
-import { ArrowUturnLeftIcon } from '@heroicons/react/24/solid'
+import { Head, Link, router } from '@inertiajs/react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import { ArrowUturnLeftIcon } from '@heroicons/react/24/outline'
 
 type FormData = {
   email: string
@@ -18,9 +17,22 @@ type FormData = {
 }
 
 export default function Registration() {
-  const [step, setStep] = useState(1)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [stepIndex, setStepIndex] = useState(1)
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const [isValide, setIsValide] = useState<boolean>(false)
+
+  const verifyFirstStep = () => {
+    if (/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email) && password.length > 7) {
+      setIsValide(true)
+    } else {
+      setIsValide(false)
+    }
+  }
+
+  useEffect(() => {
+    verifyFirstStep()
+  }, [email, password])
 
   const {
     register,
@@ -30,9 +42,11 @@ export default function Registration() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      const response = await axios.post('/api/register', data)
-      router.visit('/tableau-de-bord')
-      toast.success('Votre compte a bien été créé !')
+      const response = await axios.post('/api/auth/register', data)
+      if (response.status === 201) {
+        router.visit('/tableau-de-bord/animaux')
+        toast.success('Votre compte a bien été créé !')
+      }
     } catch (error) {
       toast.error("Votre compte n'a pas pu être créé")
       console.log(error.message)
@@ -42,140 +56,167 @@ export default function Registration() {
   return (
     <>
       <Head title="Inscription" />
-      <main className="lg:h-screen lg:flex">
-        <span
-          className={`h-full w-full hidden lg:block bg-cover bg-center bg-[url(public/img/registration_page_image.jpg)]`}
-        ></span>
-        <div className="flex flex-col my-10 lg:my-0 space-y-10 h-full w-full sm:p-16 md:p-24 lg:p-16">
-          <h1 className="text-3xl text-center font-semibold text-primary">PAWWWS.</h1>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <h2 className="text-2xl text-center font-medium">Inscription</h2>
-            <div className="flex flex-col justify-center mx-4 space-y-1 py-4">
-              <p className="text-gray-500">Étape {step} sur 2</p>
+      <main className="flex justify-between items-center h-screen">
+        <section className="hidden lg:block h-full w-full bg-cover bg-center bg-[url(public/img/registration_page_image.jpg)]"></section>
+        <section className="flex flex-col justify-between items-center px-4 py-16 md:px-12 lg:px-24 h-screen w-full">
+          <h1 className="text-primary text-2xl text-center font-semibold">PAWWWS.</h1>
+          <div className="flex flex-col justify-center items-center w-full mb-4 md:mb-0">
+            <div className="space-y-2">
+              <h2 className="text-center text-4xl font-medium">Créer un compte</h2>
+            </div>
+            <div className="flex flex-col justify-center mx-4 space-y-1 pt-2 pb-4 w-full">
+              <p className="text-center font-light">
+                {stepIndex === 1
+                  ? 'Entrez des informations de connexion.'
+                  : 'Entrez les informations de votre structure.'}
+              </p>
+              <p className="text-gray-500">Étape {stepIndex} sur 2</p>
               <div className="h-2 rounded-full w-full bg-gray-200">
                 <span
-                  className={`block bg-primary h-2 ${step === 1 ? 'w-1/2' : 'w-full'} rounded-full transition-all ease-in-out duration-300`}
+                  className={`block bg-primary h-2 ${stepIndex === 1 ? 'w-1/2' : 'w-full'} rounded-full transition-all ease-in-out duration-300`}
                 ></span>
               </div>
             </div>
 
-            {step === 1 ? (
-              <div className="flex flex-col space-y-6">
-                <p className="text-center text-lg">Informations pour vous connecter</p>
-                <Field className="flex flex-col mx-4 space-y-1">
-                  <Label className="font-semibold text-lg" htmlFor="email">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
+              <>
+                <div
+                  className={`flex flex-col justify-center items-start space-y-2 ${stepIndex === 1 ? 'flex' : 'hidden'}`}
+                >
+                  <label htmlFor="email" className="text-start">
                     Email
-                  </Label>
-                  <Input
+                    <span className="text-error">*</span>
+                  </label>
+                  <input
                     type="email"
-                    className="border border-gray-300 rounded-lg p-3"
+                    placeholder="email@example.com"
+                    required
+                    className="border px-4 py-2 rounded-lg w-full border-gray-300"
                     {...register('email', {
                       required: true,
                       pattern: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                      value: email,
                       onChange: (e) => setEmail(e.target.value),
                     })}
                   />
                   {errors.email && (
                     <span className="text-error">L'email est requis et doit être valide</span>
                   )}
-                </Field>
-                <Field className="flex flex-col mx-4 space-y-1">
-                  <Label className="font-semibold text-lg" htmlFor="password">
+                </div>
+                <div
+                  className={`flex flex-col justify-center items-start space-y-2 ${stepIndex === 1 ? 'flex' : 'hidden'}`}
+                >
+                  <label htmlFor="password">
                     Mot de passe
-                  </Label>
-                  <Input
+                    <span className="text-error">*</span>
+                  </label>
+                  <input
+                    placeholder="••••••••"
                     type="password"
-                    className="border border-gray-300 rounded-lg p-3"
+                    required
+                    className="border px-4 py-2 rounded-lg w-full border-gray-300"
                     {...register('password', {
                       required: true,
                       minLength: 8,
+                      value: password,
                       onChange: (e) => setPassword(e.target.value),
                     })}
                   />
                   {errors.password && (
                     <span className="text-error">
-                      Le mot de passe est requis et doit contenur minimum 8 caractères
+                      Le mot de passe est requis et doit faire 8 caractères minimum
                     </span>
                   )}
-                </Field>
-                <Button
-                  disabled={!email || password.length < 8}
-                  onClick={() => setStep(2)}
-                  className="text-center bg-primary text-white text-xl p-3 mx-4 rounded-lg font-semibold hover:bg-opacity-75 transition ease-in-out disabled:bg-gray-300"
+                </div>
+                <button
                   type="button"
+                  onClick={() => setStepIndex(2)}
+                  disabled={!isValide}
+                  className={`${isValide ? 'bg-primary cursor-pointer hover:opacity-80' : 'bg-gray-300 cursor-not-allowed'} rounded-lg w-full px-4 py-2 font-medium text-white   transition-all shadow-sm ${stepIndex === 1 ? 'block' : 'hidden'}`}
                 >
                   Continuer
-                </Button>
-                <p className="text-center text-lg">
-                  Vous avez déjà un compte ?{' '}
-                  <a href="/connexion" className="underline hover:font-medium">
-                    Connectez-vous
-                  </a>
-                </p>
-              </div>
-            ) : (
-              <Fieldset className="flex flex-col space-y-6">
-                <p className="text-center text-lg">
-                  Informations sur votre association ou structure
-                </p>
-                <Field className="flex flex-col mx-4 space-y-1">
-                  <a
-                    className="underline hover:font-medium flex gap-2 items-center cursor-pointer"
-                    onClick={() => setStep(1)}
-                  >
-                    <ArrowUturnLeftIcon className="w-4" />
-                    Revenir à l'étape précédente
-                  </a>
-                  <Label className="font-semibold text-lg" htmlFor="name">
-                    Nom
-                  </Label>
-                  <Input
-                    className="border border-gray-300 rounded-lg p-3"
+                </button>
+              </>
+              <>
+                <button
+                  onClick={() => setStepIndex(1)}
+                  className={`cursor-pointer hover:underline flex justify-start items-center gap-3 ${stepIndex === 2 ? 'flex' : 'hidden'}`}
+                >
+                  <ArrowUturnLeftIcon className="w-4" />
+                  Revenir à l'étape précédente
+                </button>
+                <div
+                  className={`flex flex-col justify-center items-start space-y-2 ${stepIndex === 2 ? 'flex' : 'hidden'}`}
+                >
+                  <label htmlFor="name" className="text-start">
+                    Nom de la sctucture
+                    <span className="text-error">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Nom de la structure"
+                    className="border px-4 py-2 rounded-lg w-full border-gray-300"
                     {...register('name', {
                       required: true,
                     })}
                   />
                   {errors.name && <span className="text-error">Le nom est requis</span>}
-                </Field>
-                <Field className="flex flex-col mx-4 space-y-1">
-                  <Label className="font-semibold text-lg" htmlFor="telephone">
+                </div>
+                <div
+                  className={`flex flex-col justify-center items-start space-y-2 ${stepIndex === 2 ? 'flex' : 'hidden'}`}
+                >
+                  {' '}
+                  <label htmlFor="telephone" className="text-start">
                     Téléphone
-                  </Label>
-                  <Input
-                    className="border border-gray-300 rounded-lg p-3"
+                    <span className="text-error">*</span>
+                  </label>
+                  <input
                     type="tel"
+                    required
+                    placeholder="0612345678"
+                    className="border px-4 py-2 rounded-lg w-full border-gray-300"
                     {...register('telephone', {
                       required: true,
                       pattern: /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/,
                     })}
                   />
                   {errors.telephone && (
-                    <span className="text-error">
-                      Le numéro de téléphone est requis et doit être valide
-                    </span>
+                    <span className="text-error">Le téléphone est requis et doit être valide</span>
                   )}
-                </Field>
-                <div className="flex flex-col justify-between items-center lg:flex-row mx-4 space-y-6 lg:space-y-0">
-                  <Field className="flex flex-col space-y-1 w-full">
-                    <Label className="font-semibold text-lg" htmlFor="address">
+                </div>
+                <div
+                  className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${stepIndex === 2 ? 'flex' : 'hidden'}`}
+                >
+                  <div className="flex flex-col justify-center items-start space-y-2">
+                    <label htmlFor="address" className="text-start">
                       Adresse
-                    </Label>
-                    <Input
-                      className="border border-gray-300 rounded-lg p-3"
+                      <span className="text-error">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Numéro, rue"
+                      required
+                      className="border px-4 py-2 rounded-lg w-full border-gray-300"
                       {...register('address', {
                         required: true,
                       })}
                     />
-                    {errors.address && <span className="text-error">L'adresse est requise</span>}
-                  </Field>
-                  <Field className="flex flex-col mx-4 space-y-1 w-full">
-                    <Label className="font-semibold text-lg" htmlFor="postalCode">
+                    {errors.address && <span className="text-error">L'addresse est requise</span>}
+                  </div>{' '}
+                  <div className="flex flex-col justify-center items-start space-y-2">
+                    <label htmlFor="postalCode" className="text-start">
                       Code postal
-                    </Label>
-                    <Input
-                      className="border border-gray-300 rounded-lg p-3"
+                      <span className="text-error">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="75001"
+                      className="border px-4 py-2 rounded-lg w-full border-gray-300"
                       {...register('postalCode', {
                         required: true,
+                        pattern: /^[a-z0-9][a-z0-9\- ]{0,10}[a-z0-9]$/,
                       })}
                     />
                     {errors.postalCode && (
@@ -183,44 +224,62 @@ export default function Registration() {
                         Le code postal est requis et doit être valide
                       </span>
                     )}
-                  </Field>
+                  </div>
                 </div>
-                <div className="flex flex-col justify-between items-center lg:flex-row mx-4 space-y-6 lg:space-y-0">
-                  <Field className="flex flex-col space-y-1 w-full">
-                    <Label className="font-semibold text-lg" htmlFor="city">
+                <div
+                  className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${stepIndex === 2 ? 'flex' : 'hidden'}`}
+                >
+                  <div className="flex flex-col justify-center items-start space-y-2">
+                    <label htmlFor="city" className="text-start">
                       Ville
-                    </Label>
-                    <Input
-                      className="border border-gray-300 rounded-lg p-3"
+                      <span className="text-error">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Paris"
+                      className="border px-4 py-2 rounded-lg w-full border-gray-300"
                       {...register('city', {
                         required: true,
                       })}
                     />
                     {errors.city && <span className="text-error">La ville est requise</span>}
-                  </Field>
-                  <Field className="flex flex-col mx-4 space-y-1 w-full">
-                    <Label className="font-semibold text-lg" htmlFor="country">
+                  </div>{' '}
+                  <div className="flex flex-col justify-center items-start space-y-2">
+                    <label htmlFor="country" className="text-start">
                       Pays
-                    </Label>
-                    <Input
-                      className="border border-gray-300 rounded-lg p-3"
+                      <span className="text-error">*</span>
+                    </label>
+                    <input
+                      placeholder="France"
+                      type="text"
+                      required
+                      className="border px-4 py-2 rounded-lg w-full border-gray-300"
                       {...register('country', {
                         required: true,
                       })}
                     />
                     {errors.country && <span className="text-error">Le pays est requis</span>}
-                  </Field>
+                  </div>
                 </div>
-                <Button
-                  className="text-center bg-primary text-white text-xl p-3 mx-4 rounded-lg font-semibold hover:bg-opacity-75 transition ease-in-out"
+                <button
                   type="submit"
+                  className={`bg-primary rounded-lg w-full px-4 py-2 font-medium text-white hover:opacity-80 cursor-pointer transition-all shadow-sm ${stepIndex === 2 ? 'block' : 'hidden'}`}
                 >
                   Inscription
-                </Button>
-              </Fieldset>
-            )}
-          </form>
-        </div>
+                </button>
+              </>
+            </form>
+          </div>
+          <div>
+            <p className="font-light">
+              Vous avez déjà un compte ?{' '}
+              <Link href="/connexion" className="font-medium hover:underline pb-10 md:pb-0">
+                Connectez-vous
+              </Link>
+            </p>
+          </div>
+        </section>
       </main>
     </>
   )

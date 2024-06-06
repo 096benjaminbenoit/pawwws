@@ -1,26 +1,29 @@
-import { Button } from '@headlessui/react'
-import {
-  ArrowPathIcon,
-  DocumentArrowDownIcon,
-  MagnifyingGlassIcon,
-  PlusCircleIcon,
-} from '@heroicons/react/24/outline'
-import { Head, router } from '@inertiajs/react'
+import { DocumentArrowDownIcon, EllipsisVerticalIcon, PlusIcon } from '@heroicons/react/24/outline'
+import { Head, Link, router } from '@inertiajs/react'
 import axios from 'axios'
-import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import DashboardLayout from '~/layouts/dashboard_layout'
-import { Animal } from '~/types/animal'
+import Layout from '~/layouts/layout'
 import { saveAs } from 'file-saver'
+import { useEffect, useState } from 'react'
+import { Animal } from '~/types/animal'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import AnimalCardItem from '~/components/dashboard/animals/animal_card_item'
-import AnimalTableItem from '~/components/dashboard/animals/animal_table_item'
+import useScreenSize from '~/hooks/use_screen_size'
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
+import Pagination from '~/components/pagination'
+import AnimalCardSkeleton from '~/components/animal_card_skeleton'
+import TabSkeleton from '~/components/tab_skeleton'
 
 export default function Animals() {
-  const [animals, setAnimals] = useState([])
-  let [page, setPage] = useState(1)
-  const [total, setTotal] = useState(0)
-  const [query, setQuery] = useState('')
+  const [data, setData] = useState([])
+  const [meta, setMeta] = useState({})
+  const [loading, setLoading] = useState(true)
+  const screen = useScreenSize()
+  const params = window.location.search
+
+  function formatDate(date: string) {
+    const newDate = new Date(date)
+    return newDate.toLocaleDateString('fr')
+  }
 
   async function exportCsv() {
     try {
@@ -41,184 +44,168 @@ export default function Animals() {
 
   async function fetchAnimals() {
     try {
-      const res = await axios.get(`/api/animals/?page=1`)
-      setTotal(res.data.meta.total)
-      setAnimals(res.data.data)
+      if (!params) {
+        const response = await axios.get(`/api/animals?page=1`)
+        setMeta(response.data.meta)
+        setData(response.data.data)
+        setLoading(false)
+      } else {
+        const response = await axios.get(`/api/animals${params}`)
+        setMeta(response.data.meta)
+        setData(response.data.data)
+        setLoading(false)
+      }
     } catch (error) {
       console.log(error)
+      setLoading(false)
     }
   }
 
-  async function search() {
+  async function fetchMore() {
     try {
-      setPage(1)
-      const res = await axios.get(`/api/animals/search?query=${query}`)
-      setAnimals(res.data.results)
+      const response = await axios.get(`/api/animals${meta.nextPageUrl || ''}`)
+      setTimeout(() => {
+        setData(data.concat(response.data.data))
+        setMeta(response.data.meta)
+      }, 300)
     } catch (error) {
       console.log(error)
     }
   }
 
   useEffect(() => {
-    if (query.length >= 3) {
-      search()
-    } else {
-      fetchAnimals()
-    }
-  }, [query])
-
-  function fetchMore() {
-    setTimeout(async () => {
-      setPage(++page)
-      try {
-        const res = await axios.get(`/api/animals/?page=${page}`)
-        setAnimals(animals.concat(res.data.data))
-      } catch (error) {
-        console.log(error)
-      }
-    }, 800)
-  }
+    fetchAnimals()
+  }, [params])
 
   return (
-    <>
+    <Layout>
       <Head title="Animaux" />
-      <DashboardLayout>
-        <div className="flex flex-col items-center w-full h-full md:bg-lightbase">
-          <h1 className="text-center pt-4 font-medium text-2xl">Tous vos animaux 🐈‍⬛</h1>
-          <section className="relative flex w-full h-full flex-col bg-clip-border text-gray-700 shadow-md md:hidden">
-            <div className="flex items-center justify-between gap-3 w-full mt-4 px-4">
-              <Button
-                onClick={() => exportCsv()}
-                className="bg-primary py-2 px-3 text-white font-medium hover:opacity-80 transition-all cursor-pointer rounded-lg w-full flex items-center justify-center gap-2"
+      <h1 className="text-2xl font-medium text-center md:mt-2">Tous vos animaux 🐈‍⬛</h1>
+      {screen.width < 768 ? (
+        <>
+          <section className="flex justify-center items-center gap-3 pt-4">
+            <button
+              onClick={() => exportCsv()}
+              className="flex justify-center items-center bg-primary text-white font-medium px-4 py-2 rounded-lg w-full gap-2 hover:opacity-80 transition-all"
+            >
+              <DocumentArrowDownIcon className="w-6" />
+              Exporter
+            </button>{' '}
+            <button className="flex justify-center items-center bg-primary text-white font-medium px-4 py-2 rounded-lg w-full gap-2 hover:opacity-80 transition-all">
+              <PlusIcon className="w-6" />
+              Nouveau
+            </button>
+          </section>
+          <InfiniteScroll
+            className="py-4 space-y-4"
+            dataLength={data.length}
+            next={fetchMore}
+            hasMore={data.length !== meta.total}
+            loader={<AnimalCardSkeleton />}
+          >
+            {data.map((animal: Animal) => (
+              <Link
+                key={animal.id}
+                href={`/tableau-de-bord/animaux/detail/${animal.id}/${animal.name}`}
+                className="block w-full p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-100 transition-all"
               >
-                <DocumentArrowDownIcon className="w-6" />
-                Export
-              </Button>
-              <Button className="bg-primary py-2 px-3 text-white font-medium hover:opacity-80 transition-all cursor-pointer rounded-lg w-full flex items-center justify-center gap-2">
-                <PlusCircleIcon className="w-6" />
-                Nouveau
-              </Button>
-            </div>
-            <div className="relative mx-4 my-4">
-              <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                <MagnifyingGlassIcon className="w-4 text-gray-500" />
-              </div>
-              <input
-                type="search"
-                className="block w-full px-4 py-2 ps-10 text-sm text-gray-900 border border-gray-300 bg-gray-50 rounded-lg"
-                placeholder="Rechercher un animal ..."
-                name="query"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
-            <div>
-              {animals.length <= 0 ? (
-                <p className="text-center">Aucun animal trouvé ..</p>
-              ) : (
-                <InfiniteScroll
-                  className="divide-y divide-gray-200 pb-4"
-                  dataLength={animals.length}
-                  next={fetchMore}
-                  hasMore={total > animals.length}
-                  loader={
-                    <div className="flex justify-center items-center h-16 gap-4 text-xl">
-                      <ArrowPathIcon className="w-5 animate-spin" />
-                      Chargement en cours
-                    </div>
-                  }
-                >
-                  {animals.map((animal: Animal) => (
-                    <AnimalCardItem animal={animal} />
-                  ))}
-                </InfiniteScroll>
-              )}
-            </div>
-          </section>
-          <section className="h-full w-full container py-6 pb-10 hidden md:block">
-            <div className="flex flex-col">
-              <div className="-m-1.5 overflow-x-auto">
-                <div className="p-1.5 min-w-full inline-block align-middle">
-                  <div className="border rounded-lg divide-y divide-gray-200 shadow-md bg-white">
-                    <div className="py-3 px-4 flex justify-between items-center">
-                      <div className="relative w-1/3">
-                        <label className="sr-only">Search</label>
-                        <input
-                          value={query}
-                          onChange={(e) => setQuery(e.target.value)}
-                          type="text"
-                          name="query"
-                          className="py-2 px-3 ps-9 block w-full border-gray-200 border shadow-sm rounded-lg text-sm"
-                          placeholder="Rechercher un animal ..."
-                        />
-                        <div className="absolute inset-y-0 start-0 flex items-center pointer-events-none ps-3">
-                          <MagnifyingGlassIcon className="w-4 text-gray-500" />
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between gap-3">
-                        <Button
-                          onClick={() => exportCsv()}
-                          className="bg-primary py-2 px-4 text-white font-medium hover:opacity-80 transition-all cursor-pointer rounded-lg w-full flex items-center justify-center gap-2"
+                <h5 className="mb-2 text-2xl font-bold tracking-tight">
+                  {animal.name.charAt(0).toUpperCase() + animal.name.slice(1)}
+                </h5>
+                <p className="font-normal mb-2">{animal.identificationNumber}</p>
+                <p className="font-normal">
+                  {animal.species.charAt(0).toUpperCase() + animal.species.slice(1)}{' '}
+                  {animal.color.charAt(0).toUpperCase() + animal.color.slice(1)} arrivé le{' '}
+                  {formatDate(animal.arrivalDate)}
+                </p>
+              </Link>
+            ))}
+          </InfiniteScroll>
+        </>
+      ) : (
+        <>
+          <div className="flex justify-end items-center gap-3 p-4">
+            <button
+              onClick={() => exportCsv()}
+              className="flex justify-center items-center bg-primary text-white font-medium px-4 py-2 rounded-lg gap-2 hover:opacity-80 transition-all"
+            >
+              <DocumentArrowDownIcon className="w-6" />
+              Exporter
+            </button>{' '}
+            <button className="flex justify-center items-center bg-primary text-white font-medium px-4 py-2 rounded-lg gap-2 hover:opacity-80 transition-all">
+              <PlusIcon className="w-6" />
+              Nouveau
+            </button>
+          </div>
+          {loading === true ? (
+            <TabSkeleton />
+          ) : (
+            <>
+              <div className="relative overflow-x-auto shadow-sm sm:rounded-lg border border-gray-200 mx-4">
+                <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-50  ">
+                    <tr>
+                      <th scope="col" className="px-6 py-3">
+                        Nom
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        N° identification
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Espèce
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Couleur
+                      </th>
+                      <th scope="col" className="px-6 py-3"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.map((animal: Animal) => (
+                      <tr className="bg-white border-b" key={animal.id}>
+                        <td
+                          scope="row"
+                          className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap "
                         >
-                          <DocumentArrowDownIcon className="w-6" />
-                          Export
-                        </Button>
-                        <Button className="bg-primary py-2 px-4 text-white font-medium hover:opacity-80 transition-all cursor-pointer rounded-lg w-full flex items-center justify-center gap-2">
-                          <PlusCircleIcon className="w-6" />
-                          Nouveau
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="overflow-hidden">
-                      <table className="min-w-full divide-y divide-gray-200 ">
-                        <thead className="bg-gray-50 ">
-                          <tr>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase "
+                          {animal.name.charAt(0).toUpperCase() + animal.name.slice(1)}
+                        </td>
+                        <td className="px-6 py-4">{animal.identificationNumber}</td>
+                        <td className="px-6 py-4">
+                          {animal.species.charAt(0).toUpperCase() + animal.species.slice(1)}
+                        </td>
+                        <td className="px-6 py-4">
+                          {animal.color.charAt(0).toUpperCase() + animal.color.slice(1)}
+                        </td>
+                        <Popover as="td" className="relative px-6 py-4">
+                          <PopoverButton className="focus:outline-none">
+                            <EllipsisVerticalIcon className="w-6" />
+                          </PopoverButton>
+                          <PopoverPanel
+                            anchor="left start"
+                            className="flex flex-col bg-white shadow-sm border border-gray-200 p-3 rounded-lg"
+                          >
+                            <Link
+                              href={`/tableau-de-bord/animaux/detail/${animal.id}/${animal.name}`}
                             >
-                              N°identification
-                            </th>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase "
+                              Voir
+                            </Link>
+                            <Link
+                              href={`/tableau-de-bord/animaux/detail/${animal.id}/${animal.name}`}
                             >
-                              Nom
-                            </th>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase "
-                            >
-                              Espèce
-                            </th>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase "
-                            >
-                              Couleur
-                            </th>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase "
-                            >
-                              Action
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                          {animals.map((animal: Animal) => (
-                            <AnimalTableItem animal={animal} />
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
+                              Modifier
+                            </Link>
+                          </PopoverPanel>
+                        </Popover>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </div>
-          </section>
-        </div>
-      </DashboardLayout>
-    </>
+              <Pagination meta={meta} path={'/tableau-de-bord/animaux'} />{' '}
+            </>
+          )}
+        </>
+      )}
+    </Layout>
   )
 }

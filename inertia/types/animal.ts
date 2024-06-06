@@ -4,7 +4,7 @@ export type Animal = {
   name: string
   color: string
   birthDate: Date
-  arivalDate: string
+  arrivalDate: string
   isSterilized: boolean
   sex: string
   species: string

@@ -1,61 +1,36 @@
-import {
-  HeartIcon,
-  HomeIcon,
-  PresentationChartBarIcon,
-  UsersIcon,
-} from '@heroicons/react/24/outline'
+import { HomeIcon, UserGroupIcon } from '@heroicons/react/24/outline'
+import { User } from '~/types/user'
+import SidebarItem from './sidebar_item'
+import PawIcon from './paw_icon'
+import { Link } from '@inertiajs/react'
 
-type User = {
-  email: string
-  role: string
-}
-
-export default function Sidebar({ user, currentPath }: { user: User; currentPath: string }) {
+export default function SideBar({ isOpen, user }: { isOpen: boolean; user: User }) {
   return (
-    <div className="fixed left-0 z-40 flex h-[calc(100vh-64px)] w-full max-w-[20rem] flex-col bg-white bg-clip-border border-r p-4 text-dark shadow-lg">
-      <nav className="flex min-w-[240px] flex-col gap-1 p-2 font-sans text-base font-normal">
-        <h1 className="font-semibold text-primary text-xl text-center pb-4">
-          <a href="/tableau-de-bord">PAWWWS.</a>
-        </h1>
-        <a
-          href="/tableau-de-bord"
-          className={`${currentPath === '/tableau-de-bord' ? 'bg-primary text-white' : ''} flex items-center w-full p-3 leading-tight transition-all rounded-lg outline-none text-start hover:font-medium hover:bg-primary hover:text-white`}
-        >
-          <div className="grid mr-4 place-items-center">
-            <PresentationChartBarIcon className="w-5" />
-          </div>
-          Accueil
-        </a>
-        <a
-          href="/tableau-de-bord/animaux"
-          className={`${currentPath === '/tableau-de-bord/animaux' ? 'bg-primary text-white' : ''} flex items-center w-full p-3 leading-tight transition-all rounded-lg outline-none text-start hover:font-medium hover:bg-primary hover:text-white`}
-        >
-          <div className="grid mr-4 place-items-center">
-            <HeartIcon className="w-5" />
-          </div>
-          Animaux
-        </a>
-        <a
-          href="/tableau-de-bord/familles"
-          className={`${currentPath === '/tableau-de-bord/familles' ? 'bg-primary text-white' : ''} flex items-center w-full p-3 leading-tight transition-all rounded-lg outline-none text-start hover:font-medium hover:bg-primary hover:text-white`}
-        >
-          <div className="grid mr-4 place-items-center">
-            <HomeIcon className="w-5" />
-          </div>
-          Familles
-        </a>
-        {user.role === 'admin' && (
-          <a
-            href="/tableau-de-bord/utilisateurs"
-            className={`${currentPath === '/tableau-de-bord/utilisateurs' ? 'bg-primary text-white' : ''} flex items-center w-full p-3 leading-tight transition-all rounded-lg outline-none text-start hover:font-medium hover:bg-primary hover:text-white`}
-          >
-            <div className="grid mr-4 place-items-center">
-              <UsersIcon className="w-5" />
-            </div>
-            Utilisateurs
-          </a>
-        )}
-      </nav>
-    </div>
+    <aside
+      className={`fixed bottom-0 left-0 z-40 w-64 h-[calc(100vh-64px)] md:h-screen transition-transform -translate-x-full md:translate-x-0 ${isOpen && 'translate-x-0'}`}
+    >
+      <div className="h-full px-8 py-4 overflow-y-auto bg-dark shadow-sm flex flex-col justify-start">
+        <div className="pb-12">
+          <Link href="/tableau-de-bord" className="items-center rtl:space-x-reverse flex">
+            <h1 className="self-center text-2xl font-semibold whitespace-nowrap text-primary">
+              Pawwws.
+            </h1>
+          </Link>
+        </div>
+        <ul className="space-y-2">
+          <SidebarItem title="Animaux" url="/tableau-de-bord/animaux">
+            <PawIcon className="w-5 h-5" />
+          </SidebarItem>
+          <SidebarItem title="Familles" url="/tableau-de-bord/familles">
+            <HomeIcon className="w-5 h-5" />
+          </SidebarItem>
+          {user.role === 'admin' && (
+            <SidebarItem title="Utilisateurs" url="/tableau-de-bord/utilisateurs">
+              <UserGroupIcon className="w-5 h-5" />
+            </SidebarItem>
+          )}
+        </ul>
+      </div>
+    </aside>
   )
 }

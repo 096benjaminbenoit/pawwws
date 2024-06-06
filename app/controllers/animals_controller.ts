@@ -14,32 +14,26 @@ export default class AnimalsController {
   async getAnimals({ auth, response, request }: HttpContext) {
     if (!auth.user) return response.status(401).send({ message: 'You must be loggedin' })
 
+    const search = request.input('search')
     const page = request.input('page', 1)
     const limit = 10
+    let animals
 
     try {
-      const animals = await Animal.query()
-        .where('organization_id', auth.user.organizationId)
-        .paginate(page, limit)
-
+      if (search) {
+        animals = await Animal.query()
+          .where('organization_id', auth.user.organizationId)
+          .andWhereILike('name', `%${search}%`)
+          .orWhereILike('identification_number', `%${search}%`)
+          .paginate(page, limit)
+      } else {
+        animals = await Animal.query()
+          .where('organization_id', auth.user.organizationId)
+          .paginate(page, limit)
+      }
       if (!animals) return response.status(400).send({ messag: 'No animals found' })
 
       return response.status(200).send(animals)
-    } catch (error) {
-      return response.status(500).send(error.message)
-    }
-  }
-
-  async search({ auth, response, request }: HttpContext) {
-    if (!auth.user) return response.status(401).send({ message: 'You must be loggedin' })
-    const query = request.input('query')
-
-    try {
-      const results = await Animal.query()
-        .whereILike('name', `%${query}%`)
-        .orWhereILike('identification_number', `%${query}%`)
-
-      return response.status(200).send({ results })
     } catch (error) {
       return response.status(500).send(error.message)
     }

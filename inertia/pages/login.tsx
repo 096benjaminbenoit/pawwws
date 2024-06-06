@@ -1,5 +1,4 @@
-import { Field, Label, Input, Fieldset, Button } from '@headlessui/react'
-import { Head, router } from '@inertiajs/react'
+import { Head, Link, router } from '@inertiajs/react'
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import toast from 'react-hot-toast'
@@ -19,8 +18,10 @@ export default function Login() {
   const onSubmit = async (data: FormData) => {
     try {
       const response = await axios.post('/api/auth/login', data)
-      router.visit('/tableau-de-bord')
-      toast.success('Vous êtes connecté')
+      if (response.status === 200) {
+        router.visit('/tableau-de-bord/animaux')
+        toast.success('Vous êtes connecté !')
+      }
     } catch (error) {
       toast.error('Email ou mot de passe incorrecte')
       console.log(error.message)
@@ -30,22 +31,27 @@ export default function Login() {
   return (
     <>
       <Head title="Connexion" />
-      <main className="h-screen lg:flex">
-        <span
-          className={`h-full w-full hidden lg:block bg-cover bg-center bg-[url(public/img/login_page_image.jpg)]`}
-        ></span>
-        <div className="flex flex-col space-y-10 my-10 lg:my-0 h-full w-full sm:p-16 md:p-24 lg:p-16">
-          <h1 className="text-3xl text-center font-semibold text-primary">PAWWWS.</h1>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <h2 className="text-2xl text-center font-medium">Connexion</h2>
-            <Fieldset className="flex flex-col space-y-6">
-              <Field className="flex flex-col mx-4 space-y-1">
-                <Label className="font-semibold text-lg" htmlFor="email">
+      <main className="flex justify-between items-center h-screen">
+        <section className="hidden lg:block h-full w-full bg-cover bg-center bg-[url(public/img/login_page_image.jpg)]"></section>
+        <section className="flex flex-col justify-between items-center px-4 py-16 md:px-12 lg:px-24 h-screen w-full">
+          <h1 className="text-primary text-2xl text-center font-semibold">PAWWWS.</h1>
+          <div className="flex flex-col justify-center items-center w-full">
+            <div className="pb-10 space-y-2">
+              <h2 className="text-center text-4xl font-medium">Ravis de vous revoir</h2>
+              <p className="text-center font-light text-sm md:text-base">
+                Entrez votre email et votre mot de passe afin de vous connecter.
+              </p>
+            </div>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
+              <div className="flex flex-col justify-center items-start space-y-2">
+                <label htmlFor="email" className="text-start">
                   Email
-                </Label>
-                <Input
-                  className="border border-gray-300 rounded-lg p-3"
+                </label>
+                <input
                   type="email"
+                  required
+                  placeholder="Votre email"
+                  className="border px-4 py-2 rounded-lg w-full border-gray-300"
                   {...register('email', {
                     required: true,
                     pattern: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
@@ -54,39 +60,42 @@ export default function Login() {
                 {errors.email && (
                   <span className="text-error">L'email est requis et doit être valide</span>
                 )}
-              </Field>
-              <Field className="flex flex-col mx-4 space-y-1">
-                <Label className="font-semibold text-lg" htmlFor="password">
-                  Mot de passe
-                </Label>
-                <Input
+              </div>
+              <div className="flex flex-col justify-center items-start space-y-2">
+                <label htmlFor="password">Mot de passe</label>
+                <input
                   type="password"
-                  className="border border-gray-300 rounded-lg p-3"
-                  {...register('password', { required: true })}
+                  required
+                  placeholder="Votre mot de passe"
+                  className="border px-4 py-2 rounded-lg w-full border-gray-300"
+                  {...register('password', { required: true, minLength: 8 })}
                 />
-                {errors.email && <span className="text-error">Le mot de passe est requis</span>}
-
-                <a className="self-end underline hover:font-medium" href="#">
-                  Mot de passe oublié ?
-                </a>
-              </Field>
-              <Button
-                className="text-center bg-primary text-white text-xl p-3 mx-4 rounded-lg font-semibold hover:bg-opacity-75 transition ease-in-out"
+                {errors.password && (
+                  <span className="text-error">Le mot de passe est requis et doit être valide</span>
+                )}
+                <p className="self-end py-2">
+                  <Link href="#" className="font-light hover:underline">
+                    Mot de passe oublié ?
+                  </Link>
+                </p>
+              </div>
+              <button
                 type="submit"
+                className="bg-primary rounded-lg w-full px-4 py-2 font-medium text-white hover:opacity-80 cursor-pointer transition-all shadow-sm"
               >
                 Connexion
-              </Button>
-              <div className="flex justify-between items-center gap-4 mx-4">
-                <hr className="w-full bg-gray-200 h-[2px]" />
-                OU
-                <hr className="w-full bg-gray-200 h-[2px]" />
-              </div>
-              <a href="/inscription" className="text-center text-lg underline hover:font-medium">
-                Inscrivez-vous maintenant
-              </a>
-            </Fieldset>
-          </form>
-        </div>
+              </button>
+            </form>
+          </div>
+          <div>
+            <p className="font-light">
+              Vous n'avez pas de compte ?{' '}
+              <Link href="/inscription" className="font-medium hover:underline">
+                Inscrivez-vous
+              </Link>
+            </p>
+          </div>
+        </section>
       </main>
     </>
   )

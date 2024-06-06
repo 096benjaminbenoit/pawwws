@@ -44,7 +44,10 @@ export default class Animal extends BaseModel {
   declare isAdopted: boolean
 
   @column()
-  declare adoptionDate: Date | null
+  declare adoptionStart: Date | null
+
+  @column()
+  declare adoptionEnd: Date | null
 
   @column()
   declare adoptiveFamilyId: number | null
@@ -58,7 +61,10 @@ export default class Animal extends BaseModel {
   declare isHosted: boolean
 
   @column()
-  declare hostingDate: Date | null
+  declare hostingStart: Date | null
+
+  @column()
+  declare hostingEnd: Date | null
 
   @column()
   declare hostingFamilyId: number | null

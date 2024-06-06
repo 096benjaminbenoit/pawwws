@@ -18,10 +18,12 @@ export const createAnimal = vine.compile(
     race: vine.string().trim(),
     comment: vine.string().trim().nullable().optional(),
     isAdopted: vine.boolean(),
-    adoptionDate: vine.date().nullable().optional(),
+    adoptionStart: vine.date().nullable().optional(),
+    adoptionend: vine.date().nullable().optional(),
     adoptiveFamilyId: vine.number().nullable().optional(),
     isHosted: vine.boolean(),
-    hostingDate: vine.date().nullable().optional(),
+    hostingStart: vine.date().nullable().optional(),
+    hostingEnd: vine.date().nullable().optional(),
     hostFamilyId: vine.number().nullable().optional(),
   })
 )

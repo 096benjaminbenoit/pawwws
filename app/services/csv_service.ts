@@ -17,7 +17,10 @@ export default class CsvService {
       Race: animal.race || 'Inconnu',
       Commentaire: animal.comment || '',
       Adopté: animal.isAdopted ? 'Oui' : 'Non',
-      Date_adoption: animal.adoptionDate ? animal.adoptionDate.toISOString().slice(0, 10) : 'N/A',
+      Date_début_adoption: animal.adoptionStart
+        ? animal.adoptionStart.toISOString().slice(0, 10)
+        : 'N/A',
+      Date_fin_adoption: animal.adoptionEnd ? animal.adoptionEnd.toISOString().slice(0, 10) : 'N/A',
       Famille_adoptant_prénom: animal.adoptiveFamily?.firstName,
       Famille_adoptant_nom: animal.adoptiveFamily?.lastName,
       Famille_adoptant_téléphone: animal.adoptiveFamily?.telephone,
@@ -26,7 +29,10 @@ export default class CsvService {
       Famille_adoptant_ville: animal.adoptiveFamily?.city,
       Famille_adoptant_pays: animal.adoptiveFamily?.country,
       Accueil: animal.isHosted ? 'Oui' : 'Non',
-      Date_accueil: animal.hostingDate ? animal.hostingDate.toISOString().slice(0, 10) : 'N/A',
+      Date_début_accueil: animal.hostingStart
+        ? animal.hostingStart.toISOString().slice(0, 10)
+        : 'N/A',
+      Date_fin_accueil: animal.hostingEnd ? animal.hostingEnd.toISOString().slice(0, 10) : 'N/A',
       Famille_accueil_prénom: animal.hostingFamily?.firstName,
       Famille_accueil_nom: animal.hostingFamily?.lastName,
       Famille_accueil_téléphone: animal.hostingFamily?.telephone,
